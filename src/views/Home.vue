@@ -1,18 +1,123 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div>
+    <b-card>
+      <b-container fluid class="text-dark">
+        <h3 class="col-12">Gerenciador de Clientes</h3>
+        <hr>
+
+        <div class="col-12">
+          <b-row>
+            <b-col cols="sm-12 col-md-6">
+              <b-form-group class="mr-auto">
+                <b-input-group size="sm" >
+                  <b-form-input
+                    v-model="filter"
+                    type="search"
+                    id="filterInput"
+                    placeholder="Pesquisar..."
+                  ></b-form-input>
+                  <b-input-group-append>
+                    <b-button :disabled="!filter" @click="filter = ''">Clear</b-button>
+                  </b-input-group-append>
+                </b-input-group>
+              </b-form-group>
+            </b-col>
+
+            <b-col cols="sm-12 col-md-6">
+              <b-button class="float-lg-right" variant="" to="/about" size="sm">Registrar Novo Cliente</b-button>
+            </b-col>
+
+            <b-col cols="sm-12 col-md-12">
+              <b-table
+                sort-icon-left
+                striped
+                bordered
+                fixed
+                responsive="sm"
+                head-variant="dark"
+                :items="items"
+                :fields="fields"
+                :filter="filter"
+              >
+                <template v-slot:cell(ações)="row">
+                  <b-button @click="row.toggleDetails" class="mr-2 btn-info">
+                    <b-icon icon="eye"></b-icon>
+                  </b-button>
+
+                  <b-button :to="`/about/${row.item.id}`" class="mr-2 btn-warning">
+                    <b-icon icon="pencil"></b-icon>
+                  </b-button>
+
+                  <b-button @click="remove(row.item.id)" class="mr-2 btn-danger">
+                    <b-icon icon="eye"></b-icon>
+                  </b-button>
+                </template>
+
+                <template v-slot:row-details="row">
+                  <b-card>
+                    <b-row class="mb-2">
+                      <b-col sm="3" class="text-sm-right"><b>Age:</b></b-col>
+                      <b-col>{{ row.item.age }}</b-col>
+                    </b-row>
+
+                    <b-row class="mb-2">
+                      <b-col sm="3" class="text-sm-right"><b>Is Active:</b></b-col>
+                      <b-col>{{ row.item.isActive }}</b-col>
+                    </b-row>
+                  </b-card>
+                </template>
+              </b-table>
+            </b-col>
+          </b-row>
+        </div>
+      </b-container>
+    </b-card>
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+import { get, del } from '@/components/infrastructure/request'
 
 export default {
   name: 'Home',
-  components: {
-    HelloWorld
+  data () {
+    return {
+      fields: [
+        {
+          key: 'name',
+          label: 'Nome do Cliente',
+          sortable: true
+        },
+        {
+          key: 'identifier',
+          label: 'Identificador',
+          sortable: true
+        },
+        {
+          key: 'ações'
+        }
+      ],
+      items: [],
+      filter: null
+    }
+  },
+  methods: {
+    remove (id) {
+      del(`/${id}`)
+        .then(() => {
+          this.load()
+        })
+    },
+    load () {
+      get()
+        .then(response => {
+          this.items = response
+        })
+    }
+  },
+  created () {
+    this.load()
   }
 }
 </script>
