@@ -2,7 +2,7 @@
   <div>
     <b-card>
       <b-container fluid class="text-dark">
-        <h3 class="col-12">Gerenciador de Clientes</h3>
+        <h3 class="col-12 text-info">Gerenciador de Clientes</h3>
         <hr>
 
         <div class="col-12">
@@ -24,7 +24,7 @@
             </b-col>
 
             <b-col cols="sm-12 col-md-6">
-              <b-button class="float-lg-right" variant="" to="/about" size="sm">Registrar Novo Cliente</b-button>
+              <b-button class="float-lg-right" variant="info" to="/about" size="sm">Registrar Novo Cliente</b-button>
             </b-col>
 
             <b-col cols="sm-12 col-md-12">
@@ -44,27 +44,17 @@
                     <b-icon icon="eye"></b-icon>
                   </b-button>
 
-                  <b-button :to="`/about/${row.item.id}`" class="mr-2 btn-warning">
+                  <b-button :to="`/${row.item.id}`" class="mr-2 btn-warning">
                     <b-icon icon="pencil"></b-icon>
                   </b-button>
 
                   <b-button @click="remove(row.item.id)" class="mr-2 btn-danger">
-                    <b-icon icon="eye"></b-icon>
+                    <b-icon icon="trash"></b-icon>
                   </b-button>
                 </template>
 
                 <template v-slot:row-details="row">
-                  <b-card>
-                    <b-row class="mb-2">
-                      <b-col sm="3" class="text-sm-right"><b>Age:</b></b-col>
-                      <b-col>{{ row.item.age }}</b-col>
-                    </b-row>
-
-                    <b-row class="mb-2">
-                      <b-col sm="3" class="text-sm-right"><b>Is Active:</b></b-col>
-                      <b-col>{{ row.item.isActive }}</b-col>
-                    </b-row>
-                  </b-card>
+                  <Form :object="row.item" seeOnly="' '"/>
                 </template>
               </b-table>
             </b-col>
@@ -78,6 +68,7 @@
 <script>
 // @ is an alias to /src
 import { get, del } from '@/components/infrastructure/request'
+import Form from '@/components/view/Form'
 
 export default {
   name: 'Home',
@@ -102,6 +93,9 @@ export default {
       filter: null
     }
   },
+  components: {
+    Form
+  },
   methods: {
     remove (id) {
       del(`/${id}`)
@@ -109,10 +103,23 @@ export default {
           this.load()
         })
     },
+    formatCPF (cpf) {
+      return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
+    },
+    formatCNPJ (cnpj) {
+      return cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/g, '$1.$2.$3\\$4-$5')
+    },
     load () {
       get()
         .then(response => {
-          this.items = response
+          this.items = []
+          response.forEach(item => {
+            item.identifier = item.identifier.length === 11
+              ? this.formatCPF(item.identifier)
+              : this.formatCNPJ(item.identifier)
+
+            this.items.push(item)
+          })
         })
     }
   },

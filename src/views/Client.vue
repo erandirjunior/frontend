@@ -2,59 +2,34 @@
   <div>
     <b-card>
       <b-container fluid class="text-dark">
-        <h3 class="col-12">Título</h3>
+        <h1 class="col-12 text-info">{{ getTitle() }}</h1>
         <hr>
-        <b-form class="col-12" @submit="onSubmit" @reset="onReset">
-
+        <b-alert variant="danger" show v-for="(error, index) in errors" :key="index">{{ error }}</b-alert>
+        <Form :object="form" @onSubmit="onSubmit"/>
+        <b-modal id="modal-1" title="BootstrapVue" hide-footer>
+          <h3>Cliente cadastrado com sucesso!</h3>
+          <p class="my-4">Deseja cadastrar outro cliente?</p>
           <b-row>
-            <b-col cols="12">
-              <b-form-group id="input-group-2" label="Nome do Cliente" label-for="input-2">
-                <b-form-input
-                  id="input-2"
-                  v-model="form.name"
-                  required
-                  placeholder="Nome do Cliente"
-                ></b-form-input>
-              </b-form-group>
+            <b-col cols="2">
+              <b-button @click="$bvModal.hide('modal-1')" variant="primary">SIM</b-button>
             </b-col>
-
-            <b-col cols="3">
-              <b-form-group label="Selecione o tipo do cliente:">
-                <b-form-radio v-model="form.typePerson" name="some-radios" value="1">Pessoa Física</b-form-radio>
-                <b-form-radio v-model="form.typePerson" name="some-radios" value="2">Pessoa Jurídica</b-form-radio>
-              </b-form-group>
-            </b-col>
-
-            <b-col cols="9">
-              <b-form-group label="Digite o CPF do Cliente" label-for="input-2" v-if="form.typePerson === '1'">
-                <b-form-input
-                  v-model="form.identifier"
-                  required
-                  placeholder="CPF do Cliente"
-                  v-mask="'###.###.###-##'"
-                ></b-form-input>
-              </b-form-group>
-
-              <b-form-group label="Digite o CNPJ do Cliente" label-for="input-2" v-else>
-                <b-form-input
-                  v-model="form.identifier"
-                  required
-                  placeholder="CNPJ do Cliente"
-                  v-mask="'##.###.###/####.##'"
-                ></b-form-input>
-              </b-form-group>
+            <b-col cols="2">
+              <b-button to="/" variant="danger">NÃO</b-button>
             </b-col>
           </b-row>
-
-          <b-button type="submit" variant="primary">Enviar</b-button>
-        </b-form>
+        </b-modal>
+        <b-modal id="modal-2" title="BootstrapVue" hide-footer>
+          <h3>Informações atualizadas com sucesso!</h3>
+          <b-button to="/" variant="primary">Fechar</b-button>
+        </b-modal>
       </b-container>
     </b-card>
   </div>
 </template>
 
 <script>
-import { mask } from 'vue-the-mask'
+import { post, get, put } from '@/components/infrastructure/request'
+import Form from '@/components/view/Form'
 
 export default {
   data () {
@@ -62,29 +37,114 @@ export default {
       form: {
         name: '',
         typePerson: '1',
-        identifier: ''
-      }
+        identifier: '',
+        contacts: []
+      },
+      errors: []
     }
+  },
+  props: {
+    id: {
+      type: String
+    }
+  },
+  components: {
+    Form
   },
   methods: {
-    onSubmit (evt) {
-      evt.preventDefault()
-      alert(JSON.stringify(this.form))
+    getTitle () {
+      if (this.id) {
+        return 'Editando informações'
+      }
+      return 'Formulário de Cadastro'
     },
-    onReset (evt) {
-      evt.preventDefault()
-      // Reset our form values
-      this.form.email = ''
-      this.form.name = ''
-      this.form.food = null
-      this.form.checked = []
-      // Trick to reset/clear native browser form validation state
-      this.show = false
-      this.$nextTick(() => {
-        this.show = true
+    onSubmit (evt) {
+      this.id ? this.update(evt) : this.create(evt)
+    },
+    getInformation () {
+      return {
+        name: this.form.name,
+        typePerson: this.form.typePerson,
+        contacts: this.clearPhoneContacts(),
+        identifier: this.clearIdentifier()
+      }
+    },
+    formatCPF (cpf) {
+      return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
+    },
+    formatCNPJ (cnpj) {
+      return cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/g, '$1.$2.$3\\$4-$5')
+    },
+    clearPhoneContacts () {
+      this.form.contacts.forEach((item, index) => {
+        if (['1', '3'].includes(item.type)) {
+          this.form.contacts[index].contact = item.contact
+            .replace('(', '')
+            .replace(')', '')
+            .replace(' ', '')
+            .replace(' ', '')
+            .replace('-', '')
+        }
       })
+
+      return this.form.contacts
+    },
+    clearIdentifier () {
+      return this.form.identifier
+        .replace('.', '')
+        .replace('.', '')
+        .replace('.', '')
+        .replace('/', '')
+        .replace('-', '')
+    },
+    create (evt) {
+      this.form = evt
+
+      post('', this.getInformation())
+        .then(() => {
+          this.form.name = ''
+          this.form.typePerson = '1'
+          this.form.identifier = ''
+          this.errors = []
+          this.$bvModal.show('modal-1')
+        })
+        .catch(error => {
+          this.errors = error.response.data.msg
+        })
+    },
+    update (evt) {
+      this.form = evt
+
+      put(`/${this.id}`, this.getInformation())
+        .then(() => {
+          this.form.name = ''
+          this.form.typePerson = '1'
+          this.form.identifier = ''
+          this.$bvModal.show('modal-2')
+        })
+        .catch(error => {
+          this.errors = error.response.data.msg
+        })
+    },
+    load () {
+      get(`/${this.id}`)
+        .then(response => {
+          this.form = response
+
+          if (this.form.typePerson === '1') {
+            this.form.identifier = this.formatCPF(this.form.identifier)
+          }
+
+          if (this.form.typePerson === '2') {
+            this.form.identifier = this.formatCNPJ(this.form.identifier)
+          }
+        })
     }
   },
-  directives: { mask }
+  created () {
+    if (this.id) {
+      this.load()
+    }
+  }
 }
 </script>
