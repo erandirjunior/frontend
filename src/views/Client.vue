@@ -10,17 +10,17 @@
           <h3>Cliente cadastrado com sucesso!</h3>
           <h5>Deseja cadastrar outro cliente?</h5>
           <b-row>
-            <b-col cols="4">
+            <b-col cols="6">
               <b-button block @click="$bvModal.hide('modal-1')" variant="primary">SIM</b-button>
             </b-col>
-            <b-col cols="4">
+            <b-col cols="6">
               <b-button block to="/" variant="danger">NÃO</b-button>
             </b-col>
           </b-row>
         </b-modal>
         <b-modal id="modal-2" hide-footer hide-header-close hide-header>
           <h3>Sucesso ao atualizar informações!</h3>
-          <b-button to="/" variant="primary">Fechar</b-button>
+          <b-button block to="/" variant="primary">Fechar</b-button>
         </b-modal>
       </b-container>
     </b-card>

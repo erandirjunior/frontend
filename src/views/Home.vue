@@ -5,6 +5,18 @@
         <h3 class="col-12 text-info font-weight-bold">Gerenciador de Clientes</h3>
         <hr>
 
+        <b-modal id="modal-remove" hide-footer hide-header-close hide-header>
+          <h3>Deseja realmente excluir essa informação?</h3>
+          <b-row>
+            <b-col cols="6">
+              <b-button block @click="remove()" variant="primary">SIM</b-button>
+            </b-col>
+            <b-col cols="6">
+              <b-button block @click="$bvModal.hide('modal-remove')" variant="danger">NÃO</b-button>
+            </b-col>
+          </b-row>
+        </b-modal>
+
         <div class="col-12">
           <b-row>
             <b-col cols="sm-12 col-md-6">
@@ -48,7 +60,7 @@
                     <b-icon icon="pencil"></b-icon>
                   </b-button>
 
-                  <b-button @click="remove(row.item.id)" class="mr-2 btn-danger">
+                  <b-button @click="openModalConfirmDelete(row.item.id)" class="mr-2 btn-danger">
                     <b-icon icon="trash"></b-icon>
                   </b-button>
                 </template>
@@ -57,6 +69,8 @@
                   <Form :object="row.item" seeOnly="' '"/>
                 </template>
               </b-table>
+
+              <p v-if="items.length === 0" class="text-center font-weight-bold">Nenhum cliente encontrado!</p>
             </b-col>
           </b-row>
         </div>
@@ -74,6 +88,7 @@ export default {
   name: 'Home',
   data () {
     return {
+      id: '',
       fields: [
         {
           key: 'name',
@@ -97,9 +112,18 @@ export default {
     Form
   },
   methods: {
-    remove (id) {
-      del(`/${id}`)
+    openModalConfirmDelete (id) {
+      this.$bvModal.show('modal-remove')
+      this.id = id
+    },
+    closeModalConfirmDelete () {
+      this.id = ''
+      this.$bvModal.hide('modal-remove')
+    },
+    remove () {
+      del(`/${this.id}`)
         .then(() => {
+          this.closeModalConfirmDelete()
           this.load()
         })
     },
