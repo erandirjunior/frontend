@@ -15,7 +15,7 @@ npm install
 npm run serve
 ```
 
-***This project should run in port 80***
+***This project must run in port 80***
 
 ## This project was built using:
 * Vue
