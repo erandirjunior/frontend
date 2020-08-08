@@ -1,24 +1,24 @@
 # frontend
 
-## Requirements
-* Node installed
+## Installation
 
-## Clone this project
+#### Requirements
+* [Node](https://nodejs.org/en/)
 
-## See backend settings and then run
+#### Clone this project
+
+#### See backend settings and then run to install dependencies
 ```
 npm install
 ```
 
-### To run this project
+#### To run this project
 ```
 npm run serve
 ```
 
-***This project must run in port 81***
-
 ## This project was built using:
-* Vue
-* Bootstrap-vue
-* Axios
-* Vue-the-mask
+* [Vue](https://vuejs.org/)
+* [Bootstrap-vue](https://bootstrap-vue.org/)
+* [Axios](https://github.com/axios/axios)
+* [Vue-the-mask](https://vuejs-tips.github.io/vue-the-mask/)
