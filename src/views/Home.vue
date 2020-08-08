@@ -2,7 +2,7 @@
   <div>
     <b-card>
       <b-container fluid class="text-dark">
-        <h3 class="col-12 text-info">Gerenciador de Clientes</h3>
+        <h3 class="col-12 text-info font-weight-bold">Gerenciador de Clientes</h3>
         <hr>
 
         <div class="col-12">

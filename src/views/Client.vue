@@ -2,24 +2,24 @@
   <div>
     <b-card>
       <b-container fluid class="text-dark">
-        <h1 class="col-12 text-info">{{ getTitle() }}</h1>
+        <h1 class="col-12 text-info font-weight-bold">{{ getTitle() }}</h1>
         <hr>
         <b-alert variant="danger" show v-for="(error, index) in errors" :key="index">{{ error }}</b-alert>
         <Form :object="form" @onSubmit="onSubmit"/>
-        <b-modal id="modal-1" title="BootstrapVue" hide-footer>
+        <b-modal id="modal-1" hide-header hide-footer hide-header-close>
           <h3>Cliente cadastrado com sucesso!</h3>
-          <p class="my-4">Deseja cadastrar outro cliente?</p>
+          <h5>Deseja cadastrar outro cliente?</h5>
           <b-row>
-            <b-col cols="2">
-              <b-button @click="$bvModal.hide('modal-1')" variant="primary">SIM</b-button>
+            <b-col cols="4">
+              <b-button block @click="$bvModal.hide('modal-1')" variant="primary">SIM</b-button>
             </b-col>
-            <b-col cols="2">
-              <b-button to="/" variant="danger">NÃO</b-button>
+            <b-col cols="4">
+              <b-button block to="/" variant="danger">NÃO</b-button>
             </b-col>
           </b-row>
         </b-modal>
-        <b-modal id="modal-2" title="BootstrapVue" hide-footer>
-          <h3>Informações atualizadas com sucesso!</h3>
+        <b-modal id="modal-2" hide-footer hide-header-close hide-header>
+          <h3>Sucesso ao atualizar informações!</h3>
           <b-button to="/" variant="primary">Fechar</b-button>
         </b-modal>
       </b-container>
@@ -97,20 +97,35 @@ export default {
         .replace('/', '')
         .replace('-', '')
     },
+    checkIfIdentifierIsValid () {
+      if (this.form.typePerson === '1') {
+        return this.form.identifier.length === 14
+      }
+
+      if (this.form.typePerson === '2') {
+        return this.form.identifier.length === 18
+      }
+    },
     create (evt) {
       this.form = evt
+      this.errors = []
 
-      post('', this.getInformation())
-        .then(() => {
-          this.form.name = ''
-          this.form.typePerson = '1'
-          this.form.identifier = ''
-          this.errors = []
-          this.$bvModal.show('modal-1')
-        })
-        .catch(error => {
-          this.errors = error.response.data.msg
-        })
+      if (this.checkIfIdentifierIsValid()) {
+        post('', this.getInformation())
+          .then(() => {
+            this.form.name = ''
+            this.form.typePerson = '1'
+            this.form.identifier = ''
+            this.form.contacts = []
+            this.errors = []
+            this.$bvModal.show('modal-1')
+          })
+          .catch(error => {
+            this.errors = error.response.data.msg
+          })
+      } else {
+        this.errors.push('Por favor, preencha os campos corretamente!')
+      }
     },
     update (evt) {
       this.form = evt

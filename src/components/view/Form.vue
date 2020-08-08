@@ -13,6 +13,7 @@
             id="input-2"
             v-model="object.name"
             placeholder="Nome do Cliente"
+            required
           ></b-form-input>
         </b-form-group>
       </b-col>
@@ -41,7 +42,7 @@
             required
             :disabled="!!seeOnly"
             placeholder="CNPJ do Cliente"
-            v-mask="'##.###.###/####.##'"
+            v-mask="'##.###.###/####-##'"
           ></b-form-input>
         </b-form-group>
       </b-col>
@@ -84,14 +85,14 @@
         </b-form-group>
 
         <b-form-group label="E-mail do Cliente" v-if="object.contacts[index].type === '2'">
-          <input :disabled="!seeOnly" required type="email" v-model="object.contacts[index].contact" class="form-control" placeholder="E-mail do Cliente">
+          <input :disabled="!!seeOnly" required type="email" v-model="object.contacts[index].contact" class="form-control" placeholder="E-mail do Cliente">
         </b-form-group>
 
         <b-form-group label="Telefone do Cliente" v-if="object.contacts[index].type === '3'">
           <b-form-input
             v-model="object.contacts[index].contact"
             required
-            :disabled="!seeOnly"
+            :disabled="!!seeOnly"
             placeholder="Telefone do Cliente"
             v-mask="'(##) ####-####'"
           ></b-form-input>
