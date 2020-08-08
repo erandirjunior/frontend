@@ -1,24 +1,17 @@
 # frontend
 
-## Project setup
+## Clone this project
+
+## Install node
+
+## See backends setting and then run
 ```
 npm install
 ```
 
-### Compiles and hot-reloads for development
+### To run this project
 ```
 npm run serve
 ```
 
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+***This project should run in port 80***
